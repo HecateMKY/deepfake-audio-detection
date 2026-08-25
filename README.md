@@ -1,73 +1,52 @@
-# Deepfake Audio Detection
+Deepfake Audio Detection
 
-## Overview
+CNN-BiLSTM deepfake audio detector — 98.27% accuracy on a 13,500+ sample held-out test set.
 
-This ZIP contains the **Data / Code / Logbook** submission for an audio deepfake detection project.
+Final year dissertation (University of Exeter, ECM3401): a binary audio classifier that distinguishes authentic human speech from AI-generated ("deepfake") speech, built to support anti-phishing / voice-fraud detection use cases.
 
-The system performs **binary classification** of audio as:
+Overview
 
-- REAL
-- FAKE
+The system performs binary classification of audio as:
+
+REAL — genuine human speech
+FAKE — AI-generated / synthetic speech
 
 The final pipeline uses:
 
-- **log-Mel spectrogram features**
-- a **CNN + BiLSTM** classifier
-- a saved trained model: `deepfake_detector.keras`
-- saved training normalisation statistics: `norm_stats.npy`
+log-Mel spectrogram feature extraction and normalisation
+a CNN + BiLSTM classifier
+a prototype inference function with ~50ms per-file processing time
+Dataset
 
-### Short dataset summary
+A 480,000+ sample multi-source labelled audio dataset was constructed and balanced from:
 
-The dataset combines multiple **real speech corpora** and multiple **synthetic / spoofed speech sources** so that the classifier is not trained on only one fake generator family.
+Real speech: LJSpeech, Mozilla Common Voice, VCTK
+Synthetic speech: WaveFake, ASVspoof2019, Kokoro-82M (generated in-house — see SoundTransfer.ipynb)
 
-How to run
-- Install Python 3.10 and the packages in requirements.txt
-- Put the dataset in dataset/audio/
-- Put real audio in dataset/audio/real/ and fake audio in dataset/audio/fake/
-- For training, run python src/<TRAIN_SCRIPT>.py and set DATASET_ROOT = "dataset/audio"
-- Save or keep deepfake_detector.keras and norm_stats.npy in the project root after training
-- For single-file inference, run python src/<INFERENCE_SCRIPT>.py --input <AUDIO_FILE> and load deepfake_detector.keras with norm_stats.npy
+Using multiple real and synthetic sources — rather than a single generator — helps the model generalise beyond any one synthesis method, and the dissertation report critically evaluates how well it generalises to unseen synthesis tools.
 
-Dataset tree
-- dataset/
-  - audio/
-    - real/ 
-      - LJSpeech/       
-            - VCTK/ 
-      - CommonVoice/ 
-    - fake/ 
-      - ASVspoof2019_LA_train/ 
-      - ASVspoof2019_LA_dev/
-      - ASVspoof2019_LA_eval/
-      - ljspeech_hifiGAN/ 
-      - ljspeech_waveglow/ 
-      - ljspeech_melgan/ 
-      - ljspeech_parallel_wavegan/ 
-      - Kokoro-82M/ 
+All external datasets are credited to their original authors; use of each is subject to its own licence — see the individual dataset sources for terms.
 
+Repository contents
+File	Purpose
+deepfake_audio_detection.ipynb	Main notebook — feature extraction, model training, and evaluation
+SoundTransfer.ipynb	Generates additional synthetic ("FAKE") speech samples using Kokoro-82M, used to enrich the training dataset
+GraphGenerator.ipynb	Produces the result plots and reliability/evaluation charts used in the report
+Final_Report.pdf	Full dissertation report (methodology, results, evaluation, limitations)
+Results
+98.27% accuracy on a 13,500+ sample held-out test set
+~50ms per-file inference time in the prototype pipeline
 Requirements
-# Python 3.12
-tensorflow==2.21.0
-librosa==0.11.0
-soundfile==0.13.1
-scikit-learn==1.5.2
-matplotlib==3.10.8
-pandas==2.3.3
-openpyxl==3.1.5
+Python 3.10+
+TensorFlow 2.21.0
+librosa, numpy, scikit-learn, matplotlib
+bash
+pip install -r requirements.txt
+Running
+Organise audio files into real/ and fake/ directories
+Run deepfake_audio_detection.ipynb to extract features, train, and evaluate the model
+(Optional) Run SoundTransfer.ipynb first if you want to regenerate the Kokoro-82M synthetic samples
+Run GraphGenerator.ipynb to reproduce the result plots
+Author
 
-Citation & Attribution
-
-This project uses external datasets for academic research purposes.
-All datasets remain under their original licences.
-
-Please cite the following sources where applicable:
-
-WaveFake Dataset – Deepfake audio detection dataset (WaveFake)
-ASVspoof 2019 – Automatic Speaker Verification Spoofing and Countermeasures Challenge
-VCTK Corpus – English multi-speaker speech dataset
-Mozilla Common Voice – Open-source multilingual speech dataset
-LJSpeech Dataset – Single-speaker English speech dataset
-Licence Notice
-
-External datasets are not owned by this project and are subject to their respective licences and terms of use.
-If redistributing any dataset files, users must comply with the original dataset licences.
+Ma Ka Yu — BSc (Hons) Computing, University of Exeter
